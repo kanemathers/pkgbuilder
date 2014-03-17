@@ -23,15 +23,22 @@ class Compiler(object):
 
         return importlib.import_module(module, 'pkgbuilder')
 
+    def load_modules(self, modules):
+        for name in modules:
+            self.load_module(name)
+
 class Packager(object):
 
     def __init__(self):
         self.working_dir = tempfile.mkdtemp(dir='/tmp', prefix='pkgbuilder-pkg')
         self.compilers   = set()
 
+    def load_package_compiler(self, type):
+        self.compilers.add(Compiler(type))
+
     def load_package_compilers(self, package_types):
         for type in package_types:
-            self.compilers.add(Compiler(type))
+            self.load_package_compiler(type)
 
     def build_package(self, repo):
         for compiler in self.compilers:
