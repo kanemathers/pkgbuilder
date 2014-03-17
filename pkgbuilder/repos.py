@@ -29,27 +29,29 @@ class Repo(object):
 def build(repo):
     """ Extracts the ``installation:build`` commands from the ``repo``s
     metadata and executes them on the host.
+
+    A ``KeyError`` will be raised if the repo's pkgbuild.json has not set
+    ``installation:build``.
     """
 
-    try:
-        cmd = repo.metadata['installation']['build']
-    except KeyError:
-        return
+    cmd = repo.metadata['installation']['build']
+    p   = subprocess.Popen(shlex.split(cmd))
 
-    p = subprocess.Popen(shlex.split(cmd))
+    p.communicate()
 
-    return p.wait()
+    return p.returncode == 0
 
 def install(repo):
     """ Extracts the ``installation:install`` commands from the ``repo``s
     metadata and executes them on the host.
+
+    A ``KeyError`` will be raised if the repo's pkgbuild.json has not set
+    ``installation:install``.
     """
 
-    try:
-        cmd = repo.metadata['installation']['install']
-    except KeyError:
-        return
+    cmd = repo.metadata['installation']['install']
+    p   = subprocess.Popen(shlex.split(cmd))
 
-    p = subprocess.Popen(shlex.split(cmd))
+    p.communicate()
 
-    return p.wait()
+    return p.returncode == 0
