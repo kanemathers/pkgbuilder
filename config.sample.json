@@ -1,0 +1,5 @@
+{
+    "repos": [
+        {"name": "linodeapi", "uri": "git@github.com:kanemathers/linode.git"}
+    ]
+}

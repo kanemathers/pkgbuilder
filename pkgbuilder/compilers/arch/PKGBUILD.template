@@ -1,0 +1,21 @@
+pkgname="${name}"
+pkgrel=1
+pkgver=${version}
+pkgdesc="${short_description}"
+arch=("i686", "x86_64") # TODO: metadata
+url="${url}"
+license=("GPL3") # TODO: metadata
+depends=() # TODO: metadata
+makedepends=() # TODO: metadata
+source=("${tarfile}")
+provides=("${name}")
+
+build()
+{
+    cd $srcdir/${name}
+}
+
+package()
+{
+    cd $srcdir/${name}
+}
