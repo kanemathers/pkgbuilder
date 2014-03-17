@@ -27,11 +27,11 @@ class Packager(object):
 
     def __init__(self):
         self.working_dir = tempfile.mkdtemp(dir='/tmp', prefix='pkgbuilder-pkg')
-        self.compilers   = []
+        self.compilers   = set()
 
     def load_package_compilers(self, package_types):
         for type in package_types:
-            self.compilers.append(Compiler(type))
+            self.compilers.add(Compiler(type))
 
     def build_package(self, repo):
         for compiler in self.compilers:
