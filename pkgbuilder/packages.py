@@ -38,4 +38,11 @@ class Compiler(object):
         return importlib.import_module(module, 'pkgbuilder')
 
     def build_package(self, repo):
+        container_id = self.docker.create_container('base', 'ls /tmp/repo',
+                                                    volumes=['/tmp/repo'])
+
+        self.docker.start(container_id, binds={repo.path: '/tmp/repo'})
+
+        print container_id
+
         self.module.build_package(repo)
