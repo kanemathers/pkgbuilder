@@ -1,11 +1,9 @@
 import importlib
-import tempfile
 
 class Packager(object):
 
     def __init__(self):
-        self.working_dir = tempfile.mkdtemp(dir='/tmp', prefix='pkgbuilder-pkg')
-        self.compilers   = set()
+        self.compilers = set()
 
     def load_compiler(self, name):
         self.compilers.add(Compiler(name))
