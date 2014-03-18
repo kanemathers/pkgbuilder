@@ -16,7 +16,7 @@ class Packager(object):
 
     def build_package(self, repo):
         for compiler in self.compilers:
-            compiler.build_package(repo)
+            compiler.build_repo(repo)
 
 class Compiler(object):
 
@@ -25,24 +25,10 @@ class Compiler(object):
         self.docker = docker.Client(base_url='unix://var/run/docker.sock',
                                     version='1.6', timeout=10)
 
-        try:
-            self.module = self._load_module(self.name)
-
-            self.module.init()
-        except (ImportError, AttributeError):
-            raise ImportError('failed to initialize compiler: {}'.format(name))
-
-    def _load_module(self, name):
-        module = 'pkgbuilder.compilers.{}'.format(name)
-
-        return importlib.import_module(module, 'pkgbuilder')
-
-    def build_package(self, repo):
+    def build_repo(self, repo):
         container_id = self.docker.create_container('base', 'ls /tmp/repo',
                                                     volumes=['/tmp/repo'])
 
         self.docker.start(container_id, binds={repo.path: '/tmp/repo'})
 
         print container_id
-
-        self.module.build_package(repo)
