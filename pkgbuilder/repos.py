@@ -1,6 +1,7 @@
 import os
 import subprocess
 import shlex
+import json
 
 class Repo(object):
 

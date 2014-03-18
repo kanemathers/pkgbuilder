@@ -4,7 +4,7 @@ import tempfile
 def init():
     return True
 
-def build_package(packager, repo):
+def build_package(repo):
     tarball = archive_repo(repo)
 
 def archive_repo(repo):
