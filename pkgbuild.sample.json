@@ -1,7 +1,14 @@
 {
-    "name": "pkgbuilder",
-    "version": 0.1,
-    "author": "Kane Mathers",
-    "url": "https://github.com/kanemathers/pkgbuilder",
-    "description": "Build packages for your code. Compile for Arch Linux, Debian, OPKG, ..."
+    "package": {
+        "name": "pkgbuilder",
+        "version": 0.1,
+        "author": "Kane Mathers",
+        "url": "https://github.com/kanemathers/pkgbuilder",
+        "description": "Build packages for your code. Compile for Arch Linux, Debian, OPKG, ..."
+    },
+
+    "installation": {
+        "build": "echo building",
+        "install": "echo installing"
+    }
 }
