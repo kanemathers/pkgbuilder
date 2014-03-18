@@ -1,4 +1,3 @@
-import subprocess
 import tarfile
 import tempfile
 

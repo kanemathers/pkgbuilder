@@ -1,10 +1,5 @@
 import importlib
-import collections
-import shutil
 import tempfile
-import subprocess
-import shlex
-import json
 
 class Compiler(object):
 

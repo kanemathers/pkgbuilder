@@ -1,9 +1,6 @@
 import os
-import tempfile
-import json
 import subprocess
 import shlex
-import hashlib
 
 class Repo(object):
 
@@ -17,7 +14,7 @@ class Repo(object):
 
         self.load_metadata()
 
-    def load_metadata(self, filename='pkgbuilder.json'):
+    def load_metadata(self, filename='pkgbuild.json'):
         with open(os.path.join(self.path, filename), 'r') as fp:
             self.metadata = json.load(fp)
 
