@@ -16,7 +16,7 @@ class Packager(object):
 
     def build_package(self, repo):
         for compiler in self.compilers:
-            compiler.module.build_package(self, repo)
+            compiler.build_package(repo)
 
 class Compiler(object):
 
@@ -34,3 +34,6 @@ class Compiler(object):
         module = 'pkgbuilder.compilers.{}'.format(name)
 
         return importlib.import_module(module, 'pkgbuilder')
+
+    def build_package(self, repo):
+        self.module.build_package(repo)
