@@ -5,21 +5,24 @@ import argparse
 from pkgbuilder.packages import Packager
 from pkgbuilder.repos import Repo
 
-# packages for arch linux:
-#
-# - git clone the remote repo to /tmp/$workingdir/$reponame/src
-# - for each package type to build, create the skeletons in
-#   /tmp/$workingir/$reponame/pkg/$type/{skeleton}
-# - read our metadata file out of /tmp/$workingdir/$reponame/src/pkgbuilder.ini
-#     - this gives us package name, version (or read git tag/hash?), authors
-#       name, email, url, etc...
-# - run the users 'install commands' (from the metadata
-#   (./configure && make && make install)) to build and install the code to each
-#   /tmp/$workingdir/$reponame/pkg/$type/
-# - XXX: somehow create init/systemd scripts for each $type from a common input
-#   format
-# - run arches makepkg, debians deb-build thingy, etc...
-# - serve back the package
+# - repo can be a path to a local directory, url to archive, git remote, etc.
+# - repo is downloaded to host
+# - pkgbuild.json is read out of repo
+#   - gives us package name, version, authors name and email, url, etc...
+#   - package dependencies?
+# - for each compiler loaded (arch, debian, opkg, etc) fire up a docker
+#   container with the native OS
+# - prepare package skeleton inside container (arch needs a PKGBUILD, debs
+#   need their folder structure and shit setup, etc...)
+# - build repo inside container/skeleton (pkgbuild.json's ``installation:build``
+#   and ``installation:install`` commands)
+# - run the OSs package builder tool (arch's makepkg, debians deb-build thingy,
+#   etc)
+# - serve back the compiled packages to the user
+
+# will also need:
+# - some way to create init.d/systemd scripts from a common input format
+# - pre/post install hooks for the packages from a common input format
 
 def main(args=sys.argv):
     parser = argparse.ArgumentParser()
