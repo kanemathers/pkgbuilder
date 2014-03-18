@@ -1,5 +1,6 @@
 import os
 import sys
+import argparse
 
 from pkgbuilder.packages import Packager
 from pkgbuilder.repos import Repo
@@ -21,7 +22,12 @@ from pkgbuilder.repos import Repo
 # - serve back the package
 
 def main(args=sys.argv):
-    repo     = Repo('/tmp/testrepo')
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('repo', help='URI for the repo to build packages for')
+
+    args     = parser.parse_args()
+    repo     = Repo(args.repo)
     packager = Packager()
 
     packager.load_package_compilers(('arch', 'opkg'))
