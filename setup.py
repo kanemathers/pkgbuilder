@@ -25,7 +25,9 @@ try:
 except IOError:
     changes = ''
 
-requires = []
+requires = [
+    'docker-py',
+]
 
 setup(name='pkgbuilder',
       version=__VERSION__,

@@ -1,5 +1,7 @@
 import importlib
 
+import docker
+
 class Packager(object):
 
     def __init__(self):
@@ -19,7 +21,9 @@ class Packager(object):
 class Compiler(object):
 
     def __init__(self, name):
-        self.name = name
+        self.name   = name
+        self.docker = docker.Client(base_url='unix://var/run/docker.sock',
+                                    version='1.6', timeout=10)
 
         try:
             self.module = self._load_module(self.name)
