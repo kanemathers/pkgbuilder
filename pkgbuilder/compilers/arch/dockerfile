@@ -1,0 +1,8 @@
+FROM base
+
+VOLUME ["/repo"]
+
+WORKDIR /repo
+
+RUN ${build_cmd}
+RUN ${install_cmd}

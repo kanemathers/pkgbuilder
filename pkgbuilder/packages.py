@@ -1,7 +1,18 @@
+import os
 import importlib
 import tempfile
 
 import docker
+import mako.lookup
+
+here            = os.path.abspath(os.path.dirname(__file__))
+template_dir    = os.path.join(here, 'compilers')
+template_lookup = mako.lookup.TemplateLookup(directories=[template_dir])
+
+def template(template_name, args):
+    t = template_lookup.get_template(template_name)
+
+    return t.render(**args)
 
 class Packager(object):
 
@@ -31,15 +42,14 @@ class Compiler(object):
         build_cmd   = repo.metadata['installation'].get('build', 'true')
         install_cmd = repo.metadata['installation']['install']
 
-        #'FROM base\r\n'
-        #'VOLUME ["/repo"]\r\n'
-        #'WORKDIR /repo\r\n'
-        #'RUN {}\r\n'.format(build_cmd)
-        #'RUN {}\r\n'.format(install_cmd)
+        dockerfile = template('/arch/dockerfile', {
+            'build_cmd':   build_cmd,
+            'install_cmd': install_cmd,
+        })
 
         #container_id = self.docker.build()
 
         #self.docker.start(container_id, binds={self.build_dir: '/repo'})
-        self.docker.start(container_id, binds={repo.path: '/repo'})
+        #self.docker.start(container_id, binds={repo.path: '/repo'})
 
-        print container_id
+        #print container_id
