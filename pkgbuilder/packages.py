@@ -1,4 +1,5 @@
 import importlib
+import tempfile
 
 import docker
 
@@ -21,14 +22,24 @@ class Packager(object):
 class Compiler(object):
 
     def __init__(self, name):
-        self.name   = name
-        self.docker = docker.Client(base_url='unix://var/run/docker.sock',
-                                    version='1.6', timeout=10)
+        self.name      = name
+        self.build_dir = tempfile.mkdtemp(prefix='pkgbuilder-')
+        self.docker    = docker.Client(base_url='unix://var/run/docker.sock',
+                                       version='1.6', timeout=10)
 
     def build_repo(self, repo):
-        container_id = self.docker.create_container('base', 'ls /tmp/repo',
-                                                    volumes=['/tmp/repo'])
+        build_cmd   = repo.metadata['installation'].get('build', 'true')
+        install_cmd = repo.metadata['installation']['install']
 
-        self.docker.start(container_id, binds={repo.path: '/tmp/repo'})
+        #'FROM base\r\n'
+        #'VOLUME ["/repo"]\r\n'
+        #'WORKDIR /repo\r\n'
+        #'RUN {}\r\n'.format(build_cmd)
+        #'RUN {}\r\n'.format(install_cmd)
+
+        #container_id = self.docker.build()
+
+        #self.docker.start(container_id, binds={self.build_dir: '/repo'})
+        self.docker.start(container_id, binds={repo.path: '/repo'})
 
         print container_id
