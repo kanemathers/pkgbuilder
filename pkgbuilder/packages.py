@@ -36,10 +36,11 @@ class Compiler(object):
 
     def __init__(self, name):
         self.name   = name
+        self.assets = os.path.join(here, 'compilers', self.name, 'assets')
         self.docker = docker.Client(base_url='unix://var/run/docker.sock',
                                     version='1.6', timeout=10)
 
-        self.prepare_environment()
+        self.prepare_working_env()
 
     def build_repo(self, repo):
         # - copy repo into working dir on container
@@ -47,7 +48,7 @@ class Compiler(object):
         #   into working dir
         # - pkgbuild serves back the packages
 
-        distutils.dir_util.copy_tree(repo.path, self.repo_dir)
+        self.prepare_build_env(repo)
 
         build_cmd   = repo.metadata['installation'].get('build', 'true')
         install_cmd = repo.metadata['installation']['install']
@@ -64,7 +65,7 @@ class Compiler(object):
             raise Exception('Failed to build image')
 
         container_id = self.docker.create_container(image_id,
-                                                    command='ls /pkgbuild',
+                                                    command='ls /pkgbuild/build',
                                                     volumes=['/pkgbuild'],
                                                     working_dir='/pkgbuild')
 
@@ -72,7 +73,7 @@ class Compiler(object):
 
         print container_id
 
-    def prepare_environment(self):
+    def prepare_working_env(self):
         self.working_dir = tempfile.mkdtemp(prefix='pkgbuilder-')
 
         self.repo_dir = os.path.join(self.working_dir, 'repo')
@@ -80,3 +81,7 @@ class Compiler(object):
 
         self.build_dir = os.path.join(self.working_dir, 'build')
         os.makedirs(self.build_dir)
+
+    def prepare_build_env(self, repo):
+        distutils.dir_util.copy_tree(repo.path, self.repo_dir)
+        distutils.dir_util.copy_tree(self.assets, self.build_dir)
