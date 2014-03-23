@@ -5,14 +5,13 @@ import tempfile
 
 import distutils.core
 import docker
-import mako.lookup
+import mako.template
 
-here            = os.path.abspath(os.path.dirname(__file__))
-template_dir    = os.path.join(here, 'compilers')
-template_lookup = mako.lookup.TemplateLookup(directories=[template_dir])
+HERE          = os.path.abspath(os.path.dirname(__file__))
+COMPILERS_DIR = os.path.join(HERE, 'compilers')
 
-def template(template_name, args):
-    t = template_lookup.get_template(template_name)
+def template(path, args):
+    t = mako.template.Template(filename=path)
 
     return t.render(**args)
 
@@ -35,10 +34,11 @@ class Packager(object):
 class Compiler(object):
 
     def __init__(self, name):
-        self.name   = name
-        self.assets = os.path.join(here, 'compilers', self.name, 'assets')
-        self.docker = docker.Client(base_url='unix://var/run/docker.sock',
-                                    version='1.6', timeout=10)
+        self.name       = name
+        self.dockerfile = os.path.join(COMPILERS_DIR, self.name, 'dockerfile')
+        self.assets     = os.path.join(COMPILERS_DIR, self.name, 'assets')
+        self.docker     = docker.Client(base_url='unix://var/run/docker.sock',
+                                        version='1.6', timeout=10)
 
         self.prepare_working_env()
 
@@ -53,7 +53,7 @@ class Compiler(object):
         build_cmd   = repo.metadata['installation'].get('build', 'true')
         install_cmd = repo.metadata['installation']['install']
 
-        dockerfile = template('/{0}/dockerfile'.format(self.name), {
+        dockerfile = template(self.dockerfile, {
             'build_cmd':   build_cmd,
             'install_cmd': install_cmd,
         })
@@ -85,3 +85,16 @@ class Compiler(object):
     def prepare_build_env(self, repo):
         distutils.dir_util.copy_tree(repo.path, self.repo_dir)
         distutils.dir_util.copy_tree(self.assets, self.build_dir)
+
+        for root, dirs, files in os.walk(self.build_dir):
+            for file in files:
+                if not file.endswith('.tmpl'):
+                    continue
+
+                tmpl    = os.path.join(root, file)
+                newname = tmpl[:-len('.tmpl')]
+
+                with open(newname, 'w') as fp:
+                    fp.write(template(tmpl, repo.metadata['package']))
+
+                os.unlink(tmpl)
