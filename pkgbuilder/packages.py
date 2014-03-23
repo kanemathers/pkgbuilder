@@ -1,7 +1,9 @@
 import os
+import io
 import importlib
 import tempfile
 
+import distutils.core
 import docker
 import mako.lookup
 
@@ -33,23 +35,48 @@ class Packager(object):
 class Compiler(object):
 
     def __init__(self, name):
-        self.name      = name
-        self.build_dir = tempfile.mkdtemp(prefix='pkgbuilder-')
-        self.docker    = docker.Client(base_url='unix://var/run/docker.sock',
-                                       version='1.6', timeout=10)
+        self.name   = name
+        self.docker = docker.Client(base_url='unix://var/run/docker.sock',
+                                    version='1.6', timeout=10)
+
+        self.prepare_environment()
 
     def build_repo(self, repo):
+        # - copy repo into working dir on container
+        # - use dockerfile as compiler. setup build env and compile package
+        #   into working dir
+        # - pkgbuild serves back the packages
+
+        distutils.dir_util.copy_tree(repo.path, self.repo_dir)
+
         build_cmd   = repo.metadata['installation'].get('build', 'true')
         install_cmd = repo.metadata['installation']['install']
 
-        dockerfile = template('/arch/dockerfile', {
+        dockerfile = template('/{0}/dockerfile'.format(self.name), {
             'build_cmd':   build_cmd,
             'install_cmd': install_cmd,
         })
 
-        #container_id = self.docker.build()
+        fp       = io.StringIO(dockerfile) # XXX: close this?
+        image_id = self.docker.build(fileobj=fp)[0]
 
-        #self.docker.start(container_id, binds={self.build_dir: '/repo'})
-        #self.docker.start(container_id, binds={repo.path: '/repo'})
+        if not image_id:
+            raise Exception('Failed to build image')
 
-        #print container_id
+        container_id = self.docker.create_container(image_id,
+                                                    command='ls /pkgbuild',
+                                                    volumes=['/pkgbuild'],
+                                                    working_dir='/pkgbuild')
+
+        self.docker.start(container_id, binds={self.working_dir: '/pkgbuild'})
+
+        print container_id
+
+    def prepare_environment(self):
+        self.working_dir = tempfile.mkdtemp(prefix='pkgbuilder-')
+
+        self.repo_dir = os.path.join(self.working_dir, 'repo')
+        os.makedirs(self.repo_dir)
+
+        self.build_dir = os.path.join(self.working_dir, 'build')
+        os.makedirs(self.build_dir)

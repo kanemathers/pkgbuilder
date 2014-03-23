@@ -14,7 +14,7 @@ def main(args=sys.argv):
     repo     = Repo(args.repo)
     packager = Packager()
 
-    packager.load_compilers(('arch', 'opkg'))
+    packager.load_compilers(('deb',))
     packager.build_package(repo)
 
     return 0

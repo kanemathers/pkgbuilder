@@ -28,6 +28,7 @@ except IOError:
 requires = [
     'docker-py',
     'mako',
+    'distutils',
 ]
 
 setup(name='pkgbuilder',
