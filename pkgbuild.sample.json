@@ -7,8 +7,9 @@
         "description": "Build packages for your code. Compile for Arch Linux, Debian, OPKG, ..."
     },
 
-    "installation": {
-        "build": "echo building",
-        "install": "echo installing"
-    }
+    "install": [
+        "echo install command 1",
+        "echo install command 2",
+        "echo install command 3"
+    ]
 }

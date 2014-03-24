@@ -6,8 +6,8 @@ import json
 class Repo(object):
 
     REQUIRED_METAVARS = {
-        'package':      ('name', 'version'),
-        'installation': ('install',),
+        'package': ('name', 'version'),
+        'install': (),
     }
 
     def __init__(self, path):

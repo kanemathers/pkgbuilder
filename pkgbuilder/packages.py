@@ -50,12 +50,8 @@ class Compiler(object):
 
         self.prepare_build_env(repo)
 
-        build_cmd   = repo.metadata['installation'].get('build', 'true')
-        install_cmd = repo.metadata['installation']['install']
-
         dockerfile = template(self.dockerfile, {
-            'build_cmd':   build_cmd,
-            'install_cmd': install_cmd,
+            'install_cmds': repo.metadata['install']
         })
 
         fp       = io.StringIO(dockerfile) # XXX: close this?
@@ -92,7 +88,7 @@ class Compiler(object):
                     continue
 
                 tmpl    = os.path.join(root, file)
-                newname = tmpl[:-len('.tmpl')]
+                newname = tmpl[:-5]
 
                 with open(newname, 'w') as fp:
                     fp.write(template(tmpl, repo.metadata['package']))
