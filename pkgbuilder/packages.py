@@ -50,18 +50,15 @@ class Compiler(object):
 
         self.prepare_build_env(repo)
 
-        dockerfile = template(self.dockerfile, {
-            'install_cmds': repo.metadata['install']
-        })
-
-        fp       = io.StringIO(dockerfile) # XXX: close this?
-        image_id = self.docker.build(fileobj=fp)[0]
+        with open(self.dockerfile, 'r') as fp:
+            image_id = self.docker.build(fileobj=fp)[0]
 
         if not image_id:
             raise Exception('Failed to build image')
 
+        install_cmds = ' && '.join(repo.metadata['install'])
         container_id = self.docker.create_container(image_id,
-                                                    command='ls /pkgbuild/build',
+                                                    command=install_cmds,
                                                     volumes=['/pkgbuild'],
                                                     working_dir='/pkgbuild')
 
